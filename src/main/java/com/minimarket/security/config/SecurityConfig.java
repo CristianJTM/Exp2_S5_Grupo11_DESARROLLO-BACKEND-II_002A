@@ -24,8 +24,21 @@ public class    SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable()) // Deshabilita CSRF con la nueva sintaxis
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/public/**").permitAll() // Permitir acceso público
-                        .anyRequest().authenticated() // Requiere autenticación para el resto
+                        // Público
+                        .requestMatchers("/public/**").permitAll()
+                        // GERENTE
+                        .requestMatchers("/api/usuarios/**").hasAuthority("GERENTE")
+                        .requestMatchers("/api/categorias/**").hasAuthority("GERENTE")
+                        // EMPLEADO o GERENTE
+                        .requestMatchers("/api/productos/**").hasAnyAuthority("EMPLEADO", "GERENTE")
+                        .requestMatchers("/api/inventario/**").hasAnyAuthority("EMPLEADO", "GERENTE")
+                        .requestMatchers("/api/ventas/**").hasAnyAuthority("EMPLEADO", "GERENTE")
+                        .requestMatchers("/api/detalle-ventas/**").hasAnyAuthority("EMPLEADO", "GERENTE")
+                        // Todos los roles
+                        .requestMatchers("/api/carrito/**")
+                        .hasAnyAuthority("CLIENTE", "EMPLEADO", "GERENTE")
+
+                        .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
                         .defaultSuccessUrl("/public/hola", true) // Redirigir después del login
