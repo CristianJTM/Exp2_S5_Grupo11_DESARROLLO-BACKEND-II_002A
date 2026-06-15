@@ -3,6 +3,7 @@ package com.minimarket.service.impl;
 import com.minimarket.entity.Venta;
 import com.minimarket.repository.VentaRepository;
 import com.minimarket.service.VentaService;
+import com.minimarket.util.VentaValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +14,9 @@ public class VentaServiceImpl implements VentaService {
 
     @Autowired
     private VentaRepository ventaRepository;
+
+    @Autowired
+    private VentaValidator ventaValidator;
 
     @Override
     public List<Venta> findAll() {
@@ -26,6 +30,20 @@ public class VentaServiceImpl implements VentaService {
 
     @Override
     public Venta save(Venta venta) {
+        if (!ventaValidator.usuarioValido(
+                venta.getUsuario())) {
+
+            throw new RuntimeException(
+                    "Usuario inválido");
+        }
+
+        if (!ventaValidator.tieneStockSuficiente(
+                venta)) {
+
+            throw new RuntimeException(
+                    "Stock insuficiente");
+        }
+
         return ventaRepository.save(venta);
     }
 
