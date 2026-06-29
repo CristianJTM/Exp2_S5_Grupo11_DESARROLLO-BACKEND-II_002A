@@ -149,4 +149,53 @@ public class VentaServiceTest {
         verify(ventaRepository)
                 .findAll();
     }
+
+    @Test
+    void save_UsuarioInvalido_DebeLanzarExcepcion() {
+
+        Venta venta = new Venta();
+
+        when(ventaValidator.usuarioValido(any()))
+                .thenReturn(false);
+
+        RuntimeException exception =
+                assertThrows(
+                        RuntimeException.class,
+                        () -> ventaService.save(venta)
+                );
+
+        assertEquals(
+                "Usuario inválido",
+                exception.getMessage()
+        );
+
+        verify(ventaRepository, never())
+                .save(any());
+    }
+
+    @Test
+    void save_StockInsuficiente_DebeLanzarExcepcion() {
+
+        Venta venta = new Venta();
+
+        when(ventaValidator.usuarioValido(any()))
+                .thenReturn(true);
+
+        when(ventaValidator.tieneStockSuficiente(any()))
+                .thenReturn(false);
+
+        RuntimeException exception =
+                assertThrows(
+                        RuntimeException.class,
+                        () -> ventaService.save(venta)
+                );
+
+        assertEquals(
+                "Stock insuficiente",
+                exception.getMessage()
+        );
+
+        verify(ventaRepository, never())
+                .save(any());
+    }
 }
